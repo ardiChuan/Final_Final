@@ -1,0 +1,135 @@
+[gd_scene load_steps=4 format=3 uid="uid://d30ebo7uakvax"]
+
+[sub_resource type="GDScript" id="GDScript_xvud8"]
+script/source = "extends CharacterBody2D
+
+# --- Movement Stat ---
+const SPEED := 350.0
+const ACCEL := 1200.0
+const DECEL := 1800.0
+
+# --- Attack Stat ---
+var damage 			:= 5
+var attack_timer	:= 0.0
+var attack_duration := 0.2
+var is_attacking	:= false
+
+
+@onready var visual			: ColorRect = $ColorRect
+@onready var camera 		: Camera2D	= $Camera2D
+@onready var hitbox			: Area2D 	= $Area2D
+
+func _physics_process(delta):
+	var input_dir := get_input_directon()
+	update_velocity(input_dir,delta)
+	move_and_slide()
+	handle_attack(delta)
+
+func get_input_directon() -> Vector2: 	
+	var direction := Input.get_vector(\"move_left\",\"move_right\",\"move_up\",\"move_down\")
+	return direction.normalized() if direction.length() > 1 else direction
+
+func update_velocity(direction:Vector2, delta : float) -> void: 
+	if direction != Vector2.ZERO:
+		var target_velocity = direction * SPEED
+		velocity = velocity.move_toward(target_velocity, ACCEL * delta)
+	else:
+		velocity = velocity.move_toward(Vector2.ZERO, DECEL * delta)
+
+func handle_attack(delta: float) -> void:
+		# Cooldown timer
+		if attack_timer > 0:
+			attack_timer -= delta
+		if attack_timer <= 0:
+			end_attack()
+		
+		# Attack input
+		if Input.is_action_just_pressed(\"attack\") and not is_attacking:
+			start_attack()
+
+func start_attack() -> void:
+	is_attacking = true
+	attack_timer = attack_duration
+	hitbox.monitoring = true
+
+func end_attack() -> void:
+	is_attacking = false
+	hitbox.monitoring = false
+
+func _on_hitbox_body_entered(body: Node2D) -> void:
+	if body.has_method(\"take_damage\"):
+		body.take_damage(damage)
+		apply_hitstop()
+		shake_camera()
+		spawn_hit_particle(body.global_position)
+
+func apply_hitstop() -> void:
+	Engine.time_scale = 0.1
+	await get_tree().create_timer(0.05, true, false, true).timeout
+	Engine.time_scale = 1.0
+
+func shake_camera(intensity: float = 5.0) -> void:
+	var original_offset = camera.offset
+	camera.offset = Vector2(randf_range(-intensity, intensity), randf_range(-intensity, intensity))
+	await get_tree().create_timer(0.1).timeout
+	camera.offset = original_offset
+
+func spawn_hit_particle(pos: Vector2) -> void:
+	for i in range(5):
+		var particle = ColorRect.new()
+		particle.size = Vector2(4, 4)
+		particle.color = Color.YELLOW
+		get_tree().root.add_child(particle)
+		particle.global_position = pos + Vector2(randf_range(-10, 10), randf_range(-10, 10))
+		
+		var tween = create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(particle, \"position\", particle.position + Vector2(randf_range(-30, 30), randf_range(-30, 30)), 0.4)
+		tween.tween_property(particle, \"modulate:a\", 0.0, 0.4)
+		await tween.finished
+		particle.queue_free()
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xvud8"]
+size = Vector2(40, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ghijl"]
+size = Vector2(40, 10)
+
+[node name="samurai" type="CharacterBody2D"]
+collision_layer = 0
+collision_mask = 2
+script = SubResource("GDScript_xvud8")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_top = -40.0
+offset_right = 40.0
+color = Color(0, 0, 1, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(20, -20)
+shape = SubResource("RectangleShape2D_xvud8")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(20, -20)
+scale = Vector2(0.6149694, 1.2313538)
+
+[node name="Area2D" type="Area2D" parent="."]
+position = Vector2(20, -20)
+scale = Vector2(1.5501727, 1.6172944)
+collision_layer = 0
+collision_mask = 2
+
+[node name="WeaponRect" type="ColorRect" parent="Area2D"]
+offset_left = -39.995544
+offset_right = 0.0044555664
+offset_bottom = 40.0
+scale = Vector2(1, 0.25046137)
+color = Color(0.9490128, 0.15442729, 0.41233844, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(-19.997774, 4.9465327)
+shape = SubResource("RectangleShape2D_ghijl")
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_hitbox_body_entered"]

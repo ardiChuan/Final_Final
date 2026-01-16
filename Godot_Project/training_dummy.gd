@@ -28,3 +28,5 @@ func die() -> void:
 	visual.color = Color.DARK_GRAY
 	health_label.text = "DEAD"
 	collision_layer = 0  # Disable collision
+
+# a line to test git push

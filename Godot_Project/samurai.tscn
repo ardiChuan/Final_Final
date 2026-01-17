@@ -8,22 +8,42 @@ const SPEED := 350.0
 const ACCEL := 1200.0
 const DECEL := 1800.0
 
-# --- Attack Stat ---
-var damage 			:= 5
-var attack_timer	:= 0.0
-var attack_duration := 0.2
-var is_attacking	:= false
+# --- Attack System ---
+enum AttackType {NONE, LIGHT, HEAVY}
+var current_attack 						:= AttackType.NONE
+var combo_count 						:= 0 
+var max_combo 							:= 3
+var buffered_input						:= AttackType.NONE
+var is_attacking						:= false
 
+
+# --- Light Attack Stat ---
+var light_attack_duration				:= 0.2
+var light_attack_damage 				:= 10
+var light_combo_window 					:= 0.3
+
+# --- Heavy Attack Stat ---
+var heavy_attack_duration 				:= 0.5
+var heavy_attack_damage 				:= 25
+var heavy_charge_time 					:= 0.3
+
+# --- Timer ---
+var attack_timer 						:= 0.0
+var combo_timer 						:= 0.0
 
 @onready var visual			: ColorRect = $ColorRect
 @onready var camera 		: Camera2D	= $Camera2D
 @onready var hitbox			: Area2D 	= $Area2D
 
 func _physics_process(delta):
-	var input_dir := get_input_directon()
-	update_velocity(input_dir,delta)
+	if not is_attacking:
+		var input_dir := get_input_directon()
+		update_velocity(input_dir,delta)
+	else :
+		update_velocity(Vector2.ZERO,delta)
 	move_and_slide()
-	handle_attack(delta)
+	handle_attack_input()
+	update_attack(delta)
 
 func get_input_directon() -> Vector2: 	
 	var direction := Input.get_vector(\"move_left\",\"move_right\",\"move_up\",\"move_down\")
@@ -36,36 +56,78 @@ func update_velocity(direction:Vector2, delta : float) -> void:
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, DECEL * delta)
 
-func handle_attack(delta: float) -> void:
-		# Cooldown timer
-		if attack_timer > 0:
-			attack_timer -= delta
-		if attack_timer <= 0:
-			end_attack()
-		
-		# Attack input
-		if Input.is_action_just_pressed(\"attack\") and not is_attacking:
-			start_attack()
-
-func start_attack() -> void:
+func handle_attack_input() -> void :
+	if Input.is_action_just_pressed('attack'):
+		if is_attacking :
+			buffered_input = AttackType.LIGHT
+		else :
+			start_light_attack()
+	if Input.is_action_just_pressed('heavy_attack'):
+		if is_attacking :
+			buffered_input = AttackType.HEAVY
+		else :
+			start_heavy_attack()
+			
+func start_light_attack() -> void :
 	is_attacking = true
-	attack_timer = attack_duration
-	hitbox.monitoring = true
+	current_attack = AttackType.LIGHT
+	combo_count += 1
+	if combo_count	> max_combo :
+		combo_count = 1
+	attack_timer = light_attack_duration
+	combo_timer = light_combo_window
+	hitbox.monitoring = true 
+	
+func start_heavy_attack() -> void :
+	is_attacking = true
+	current_attack = AttackType.HEAVY
+	combo_count = 0 
+	combo_timer = 0.0
+	attack_timer = heavy_attack_duration
+	hitbox.monitoring = true 
+
+func update_attack(delta: float) -> void :
+	if attack_timer > 0 :
+		attack_timer -= delta
+		if attack_timer <= 0 :
+			end_attack()
+			
+	if combo_timer > 0 and not is_attacking:
+		combo_timer -= delta
+		if combo_timer <= 0 :
+			combo_count = 0 
+			
 
 func end_attack() -> void:
 	is_attacking = false
+	current_attack = AttackType.NONE
 	hitbox.monitoring = false
+	
+	if buffered_input != AttackType.NONE:
+		var buffered = buffered_input
+		buffered_input = AttackType.NONE
+		
+		if buffered == AttackType.LIGHT:
+			start_light_attack()
+		elif buffered == AttackType.HEAVY:
+			start_heavy_attack()
 
 func _on_hitbox_body_entered(body: Node2D) -> void:
 	if body.has_method(\"take_damage\"):
+		var damage = light_attack_damage if current_attack == AttackType.LIGHT else heavy_attack_damage
 		body.take_damage(damage)
-		apply_hitstop()
-		shake_camera()
+		
+		if current_attack == AttackType.HEAVY :
+			apply_hitstop(0.1)
+			shake_camera(8.0)
+		else : 
+			apply_hitstop(0.05)
+			shake_camera(5.0)
 		spawn_hit_particle(body.global_position)
 
-func apply_hitstop() -> void:
+func apply_hitstop(duration : float = 0.05) -> void:
 	Engine.time_scale = 0.1
-	await get_tree().create_timer(0.05, true, false, true).timeout
+	await get_tree().create_timer(duration, true, false, true).timeout
 	Engine.time_scale = 1.0
 
 func shake_camera(intensity: float = 5.0) -> void:

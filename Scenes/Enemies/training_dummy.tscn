@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://wkb0dxb8iimi"]
 
-[ext_resource type="Script" uid="uid://cywj5iuedkv66" path="res://training_dummy.gd" id="1_c2g3c"]
+[ext_resource type="Script" uid="uid://bejp544380gq3" path="res://Scripts/Enemies/training_dummy.gd" id="1_c2g3c"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_c2g3c"]
 size = Vector2(22.633917, 26.885107)
@@ -20,10 +20,12 @@ position = Vector2(20.000002, -19.706911)
 scale = Vector2(1.771431, 1.5096158)
 shape = SubResource("RectangleShape2D_c2g3c")
 
-[node name="Label" type="Label" parent="."]
+[node name="Labels" type="Label" parent="."]
 offset_left = -11.0
 offset_top = -61.0
 offset_right = 29.0
 offset_bottom = -38.0
 scale = Vector2(1.6093189, 0.8752309)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0.99215686, 0, 0, 1)
 theme_override_font_sizes/font_size = 16

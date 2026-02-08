@@ -1,0 +1,37 @@
+[gd_scene load_steps=4 format=3 uid="uid://ljrhy60s37m7"]
+
+[ext_resource type="Script" uid="uid://crihv5lbkskyx" path="res://Scripts/Enemies/vernita.gd" id="1_068bf"]
+[ext_resource type="Texture2D" uid="uid://cs5uop18t6dxp" path="res://Assets/Sprites/Bosses/vernita_placeholder.png" id="2_564ba"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dt3ww"]
+size = Vector2(22.593948, 37.095528)
+
+[node name="Vernita" type="CharacterBody2D" groups=["player"]]
+position = Vector2(32, -32)
+script = ExtResource("1_068bf")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(1.25, 1.1666666)
+texture = ExtResource("2_564ba")
+flip_h = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="StateLabel" type="Label" parent="."]
+modulate = Color(0, 0, 0, 1)
+self_modulate = Color(0, 0, 0, 1)
+offset_left = 8.0
+offset_top = -72.0
+offset_right = 48.0
+offset_bottom = -49.0
+scale = Vector2(0.62541133, 0.9647384)
+
+[node name="HitBox" type="Area2D" parent="."]
+position = Vector2(16, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -4.7683716e-07)
+scale = Vector2(1.7714309, 1.5096157)
+shape = SubResource("RectangleShape2D_dt3ww")

@@ -52,19 +52,21 @@ var combo_timer 						:= 0.0
 var combo_finisher_cooldown 			:= 0.9
 var is_recovering 						:= false 
 
-@onready var visual			: ColorRect = $ColorRect
 @onready var camera 		: Camera2D	= $Camera2D
-@onready var hitbox			: Area2D 	= $Area2D
-
+@onready var visuals		: Node2D	= $Visuals
+@onready var visual			: ColorRect = $Visuals/ColorRect
+@onready var hitbox			: Area2D 	= $Visuals/Area2D
 
 
 
 # --- MAIN CORE LOOP ---
-func _ready() : # simple fix temporary 
+func _ready():
 	hitbox.monitoring = false
-	
+
+
 func _physics_process(delta):
 	var input_dir := get_input_directon()
+	update_facing(input_dir)
 	update_timers(delta)
 	handle_defense_input()
 	handle_movement(input_dir, delta)
@@ -88,7 +90,6 @@ func update_timers(delta : float) -> void:
 
 
 
-
 # --- Movement Function ---
 func get_input_directon() -> Vector2: 	
 	var direction := Input.get_vector("move_left","move_right","move_up","move_down")
@@ -101,9 +102,12 @@ func handle_movement(input_dir : Vector2, delta: float) -> void :
 		if dodge_travelled >= dodge_distance:
 			is_dodging = false
 			is_invulnerable = false
+			dodge_travelled = 0.0 
 		else:
 			velocity = dodge_direction * dodge_speed
-	elif not is_attacking and not is_blocking :
+	elif is_blocking : 
+		velocity = Vector2.ZERO
+	elif not is_attacking:
 		update_movement(input_dir, delta)
 	else : 
 		update_movement(Vector2.ZERO, delta) 
@@ -117,9 +121,22 @@ func update_movement(direction:Vector2, delta : float) -> void:
 		velocity = velocity.move_toward(Vector2.ZERO, DECEL * delta)
 
 
+var facing: int = 1  # 1 = right, -1 = left
+
+func update_facing(input_dir: Vector2) -> void:
+	if input_dir.x == 0:
+		return
+
+	var new_facing: int = sign(input_dir.x)
+	if new_facing == facing:
+		return
+
+	facing = new_facing
+	visuals.scale.x = facing
 
 
-# --- Defense Fucntion ---
+
+# --- Defense Function ---
 func handle_defense_input() -> void :
 	#Dodge
 	if Input.is_action_just_pressed("dodge") and can_dodge():
@@ -130,7 +147,8 @@ func handle_defense_input() -> void :
 	if Input.is_action_just_pressed("block") and can_parry() :
 		start_parry()
 	#Block
-	#	blocking = Input.is_action_pressed("block") and can_block
+	if not is_parrying : 
+		is_blocking = Input.is_action_pressed("block") and can_block
 
 func can_dodge() -> bool :
 	return not is_dodging and not is_attacking and dodge_cooldown <= 0 
@@ -141,25 +159,33 @@ func start_dodge(direction: Vector2 ) -> void :
 	dodge_direction = direction.normalized()
 	dodge_travelled = 0.0
 	dodge_cooldown = dodge_cooldown_time
-	
-	await get_tree().create_timer(dodge_duration).timeout
-	is_dodging= false
-	
-	await get_tree().create_timer(max(0, iframe_duration - dodge_duration)).timeout
-	is_invulnerable = false 
 
-#func can_block() -> bool :
-	#return not is_attackking and not is_dodging 
+func can_block() -> bool :
+	return not is_attacking and not is_dodging 
 
 func can_parry() -> bool :
 	return not is_attacking and not is_dodging and not is_parrying 
 
-func start_parry() : 
-	return not is_attacking and not is_dodging and not is_parrying 
-	
+func start_parry() -> void :
+	is_parrying = true
+	parry_timer = parry_window
+
 func end_parry() : 
 	is_parrying = false 
 
+func take_damage(amount : int) -> void : 
+	if is_invulnerable : 
+		return 
+	if is_parrying :
+		parry_success()
+		return
+	var final_damage = amount 
+	if is_blocking : 
+		final_damage = int(amount * (1.0 - block_damage_reduction))
+
+func parry_success() -> void : 
+	apply_hitstop(0.15) 
+	shake_camera(10.0)
 
 
 
@@ -241,8 +267,6 @@ func _on_hitbox_body_entered(body: Node2D) -> void:
 			apply_hitstop(0.05)
 			shake_camera(5.0)
 		spawn_hit_particle(body.global_position)
-
-
 
 
 # --- Effects

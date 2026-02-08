@@ -1,0 +1,50 @@
+[gd_scene load_steps=4 format=3 uid="uid://d30ebo7uakvax"]
+
+[ext_resource type="Script" uid="uid://duqia23nbupe2" path="res://Scripts/Player/samurai.gd" id="1_26mm6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ghijl"]
+size = Vector2(40, 10)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xvud8"]
+size = Vector2(49.458607, 46.248436)
+
+[node name="samurai" type="CharacterBody2D" groups=["player"]]
+scale = Vector2(0.8147025, 1.2191203)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_26mm6")
+
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="Visuals"]
+offset_left = -25.380234
+offset_top = -23.09314
+offset_right = 24.4393
+offset_bottom = 23.468971
+color = Color(0, 0, 1, 1)
+
+[node name="Area2D" type="Area2D" parent="Visuals"]
+position = Vector2(0, -1.9073486e-06)
+scale = Vector2(1.5501727, 1.6172944)
+collision_layer = 0
+collision_mask = 2
+
+[node name="WeaponRect" type="ColorRect" parent="Visuals/Area2D"]
+offset_right = 40.0
+offset_bottom = 40.0
+scale = Vector2(1, 0.25046137)
+color = Color(0.9490128, 0.15442729, 0.41233844, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Visuals/Area2D"]
+position = Vector2(19.99777, 4.9465337)
+shape = SubResource("RectangleShape2D_ghijl")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+light_mask = 2
+shape = SubResource("RectangleShape2D_xvud8")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+scale = Vector2(0.6149694, 1.2313538)
+
+[connection signal="body_entered" from="Visuals/Area2D" to="." method="_on_hitbox_body_entered"]

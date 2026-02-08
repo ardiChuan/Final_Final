@@ -1,10 +1,10 @@
 extends StaticBody2D
 
-@export var max_health := 300
-var current_health := 300
+@export var max_health := 100000
+var current_health := 100000
 
 @onready var visual: ColorRect = $ColorRect
-@onready var health_label: Label = $Label
+@onready var health_label: Label = $Labels
 
 func _ready():
 	update_health_display()
@@ -28,5 +28,3 @@ func die() -> void:
 	visual.color = Color.DARK_GRAY
 	health_label.text = "DEAD"
 	collision_layer = 0  # Disable collision
-
-# a line to test git push

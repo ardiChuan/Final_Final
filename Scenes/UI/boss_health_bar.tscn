@@ -1,0 +1,34 @@
+[gd_scene load_steps=2 format=3 uid="uid://c0tjwlmkjnom3"]
+
+[ext_resource type="Script" uid="uid://da5qttqj5whnj" path="res://Scripts/UI/boss_health_bar.gd" id="1_yxwhj"]
+
+[node name="BossHealthBar" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 186.0
+offset_top = 30.0
+offset_right = 327.0
+offset_bottom = 70.0
+script = ExtResource("1_yxwhj")
+
+[node name="Panel" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 2.0
+offset_right = 152.0
+offset_bottom = 42.0
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 7.0
+offset_right = 151.0
+offset_bottom = 34.0
+
+[node name="BossName" type="Label" parent="."]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 2.0
+offset_right = 152.0
+offset_bottom = 42.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)

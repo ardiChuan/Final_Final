@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://d1v5qk4xeu80e"]
+
+[ext_resource type="PackedScene" uid="uid://c0tjwlmkjnom3" path="res://Scenes/UI/boss_health_bar.tscn" id="1_oxayl"]
+
+[node name="PasadenaBossRoom" type="Node2D"]
+
+[node name="PlayerSpawn" type="Marker2D" parent="."]
+position = Vector2(142.06679, 180.31552)
+
+[node name="VernitaSpawn" type="Marker2D" parent="."]
+position = Vector2(440.54364, 176.21744)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="BossHealthBar" parent="CanvasLayer" instance=ExtResource("1_oxayl")]

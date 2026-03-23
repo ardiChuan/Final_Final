@@ -10,7 +10,6 @@ size = Vector2(49.458607, 46.248436)
 
 [node name="samurai" type="CharacterBody2D" groups=["player"]]
 scale = Vector2(0.8147025, 1.2191203)
-collision_layer = 0
 collision_mask = 2
 script = ExtResource("1_26mm6")
 
@@ -40,11 +39,11 @@ metadata/_edit_use_anchors_ = true
 position = Vector2(19.99777, 4.9465337)
 shape = SubResource("RectangleShape2D_ghijl")
 
+[node name="Camera2D" type="Camera2D" parent="."]
+scale = Vector2(0.6149694, 1.2313538)
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 light_mask = 2
 shape = SubResource("RectangleShape2D_xvud8")
-
-[node name="Camera2D" type="Camera2D" parent="."]
-scale = Vector2(0.6149694, 1.2313538)
 
 [connection signal="body_entered" from="Visuals/Area2D" to="." method="_on_hitbox_body_entered"]

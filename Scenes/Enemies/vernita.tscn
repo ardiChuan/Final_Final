@@ -3,17 +3,23 @@
 [ext_resource type="Script" uid="uid://crihv5lbkskyx" path="res://Scripts/Enemies/vernita.gd" id="1_068bf"]
 [ext_resource type="Texture2D" uid="uid://cs5uop18t6dxp" path="res://Assets/Sprites/Bosses/vernita_placeholder.png" id="2_564ba"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_dt3ww"]
-size = Vector2(22.593948, 37.095528)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_564ba"]
+size = Vector2(22.633917, 37.095528)
 
 [node name="Vernita" type="CharacterBody2D" groups=["player"]]
 position = Vector2(32, -32)
+collision_layer = 2
 script = ExtResource("1_068bf")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 scale = Vector2(1.25, 1.1666666)
 texture = ExtResource("2_564ba")
 flip_h = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-3.8146973e-06, 0)
+scale = Vector2(1.771431, 1.5096158)
+shape = SubResource("RectangleShape2D_564ba")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 
@@ -25,13 +31,3 @@ offset_top = -72.0
 offset_right = 48.0
 offset_bottom = -49.0
 scale = Vector2(0.62541133, 0.9647384)
-
-[node name="HitBox" type="Area2D" parent="."]
-position = Vector2(16, 0)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -4.7683716e-07)
-scale = Vector2(1.7714309, 1.5096157)
-shape = SubResource("RectangleShape2D_dt3ww")

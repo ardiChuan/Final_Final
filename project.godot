@@ -11,7 +11,6 @@ config_version=5
 [application]
 
 config/name="New Game Project"
-run/main_scene="uid://ckavqb25bdaul"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 run/max_fps=120
 
@@ -73,6 +72,9 @@ block={
 
 [layer_names]
 
+2d_render/layer_1="PlayerBody"
+2d_render/layer_2="EnemyBody"
+2d_render/layer_3="PlayerHitbox"
 2d_physics/layer_1="Player"
 2d_physics/layer_2="Enemy"
 
